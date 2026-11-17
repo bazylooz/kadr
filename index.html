@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="pl" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Kadr — prywatna kompresja, zmiana rozmiaru i cenzura zdjęć w 100% w Twojej przeglądarce. Bez serwera, bez konta, bez wysyłania plików."
+    />
+    <meta name="theme-color" content="#070a0f" />
+    <title>Kadr — prywatna kompresja i cenzura zdjęć</title>
+    <script>
+      ;(() => {
+        try {
+          const stored = localStorage.getItem('kadr-theme')
+          const dark = stored ? stored === 'dark' : true
+          document.documentElement.classList.toggle('dark', dark)
+          document.querySelector('meta[name="theme-color"]')?.setAttribute('content', dark ? '#070a0f' : '#f5f6f8')
+        } catch {
+          document.documentElement.classList.add('dark')
+        }
+      })()
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

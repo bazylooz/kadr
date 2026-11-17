@@ -1,0 +1,14 @@
+node_modules/
+dist/
+.vite/
+*.local
+.DS_Store
+audit.json
+vs-install.log
+
+# Tauri / Rust
+src-tauri/target/
+src-tauri/gen/schemas/
+node_modules
+dist
+src-tauri/target

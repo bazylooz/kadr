@@ -1,0 +1,10 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Uprawnienia okna głównego: dostęp do rdzenia oraz natywne okno zapisu pliku.",
+  "windows": ["main"],
+  "permissions": [
+    "core:default",
+    "dialog:allow-save"
+  ]
+}

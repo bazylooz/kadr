@@ -1,0 +1,30 @@
+{
+  "name": "kadr",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Kadr — prywatna kompresja i edycja zdjęć w przeglądarce",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "tauri": "tauri",
+    "desktop:dev": "tauri dev",
+    "desktop:build": "tauri build"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^2.12.5",
+    "@tauri-apps/plugin-dialog": "^2.8.4",
+    "jspdf": "^4.2.1",
+    "lucide-react": "^1.74.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.5",
+    "@tauri-apps/cli": "^2.12.5",
+    "@vitejs/plugin-react": "^6.3.0",
+    "tailwindcss": "^4.3.5",
+    "vite": "^8.3.8"
+  }
+}

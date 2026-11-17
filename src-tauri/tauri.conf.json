@@ -1,0 +1,55 @@
+{
+  "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
+  "productName": "Kadr",
+  "version": "1.0.0",
+  "identifier": "pl.kadr.edytor",
+  "mainBinaryName": "Kadr",
+  "build": {
+    "frontendDist": "../dist",
+    "devUrl": "http://127.0.0.1:5173",
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "Kadr — prywatna edycja zdjęć",
+        "width": 1440,
+        "height": 900,
+        "minWidth": 900,
+        "minHeight": 620,
+        "center": true,
+        "resizable": true,
+        "fullscreen": false,
+        "dragDropEnabled": false,
+        "backgroundColor": "#070a0f"
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self' ipc: http://ipc.localhost https://ipc.localhost blob: data:; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; connect-src 'self' ipc: http://ipc.localhost https://ipc.localhost; font-src 'self' data:; worker-src 'self' blob:; frame-src 'self' blob: data:; object-src 'none'; base-uri 'self'; form-action 'none'"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["nsis"],
+    "publisher": "Kadr",
+    "copyright": "Kadr",
+    "shortDescription": "Prywatna kompresja i edycja zdjęć",
+    "longDescription": "Kadr — kompresja, zmiana rozmiaru i cenzura zdjęć w 100% lokalnie. Pliki nie opuszczają urządzenia.",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "windows": {
+      "nsis": {
+        "installMode": "currentUser",
+        "languages": ["Polish", "English"],
+        "displayLanguageSelector": false
+      }
+    }
+  }
+}
