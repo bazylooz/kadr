@@ -26,10 +26,11 @@ A modern, minimalist desktop and web application for compressing, resizing, and 
 ```bash
 npm install
 npm run dev
+```
 
 The application will be available at the address displayed by Vite (default: `http://localhost:5173`).
 
-## Production Build
+## Production Build (Web)
 
 ```bash
 npm run build
@@ -38,9 +39,11 @@ npm run preview
 
 The `dist/` directory contains a fully static application — it can be hosted on any file server or CDN and requires no API or database.
 
-## Desktop Application (Tauri 2 + WebView2)
+## Desktop Application (Tauri 2 + Rust)
 
-The project includes a Tauri wrapper in the `src-tauri/` directory. Prerequisites: Rust (MSVC toolchain) and Visual Studio Build Tools with the "Desktop development with C++" workload.
+The project includes a native Tauri 2 backend in the `src-tauri/` directory. Image processing operations (censoring/redaction, format encoding, and PDF assembly) are offloaded to Rust for maximum performance and low memory overhead.
+
+**Prerequisites:** Rust (MSVC toolchain) and Visual Studio Build Tools with the "Desktop development with C++" workload.
 
 ```bash
 # development mode (Vite + native window)
@@ -50,16 +53,15 @@ npm run desktop:dev
 npm run desktop:build
 ```
 
-Build outputs:
-- `src-tauri/target/release/Kadr.exe` — standalone application (WebView2),
+**Build outputs:**
+- `src-tauri/target/release/Kadr.exe` — standalone application (WebView2).
 - `src-tauri/target/release/bundle/nsis/Kadr_1.0.0_x64-setup.exe` — NSIS installer.
 
-In the native window, file exports (JPG/PNG/WebP/PDF) use the system "Save As" dialog and write bytes directly to disk — allowing jsPDF exports to work independently of WebView2's download mechanism. Window permissions and the `dialog` plugin are configured in `src-tauri/capabilities/default.json`.
+In the native desktop app, image processing and PDF generation execute natively in Rust, and file exports (JPG/PNG/WebP/PDF) use the system "Save As" dialog via the Tauri `dialog` plugin configured in `src-tauri/capabilities/default.json`.
 
 ## Privacy
 
-- Images are decoded and processed exclusively in browser memory.
-- Exporting creates a new file using `canvas.toBlob()`; no EXIF metadata is copied over.
+- All image decoding, redaction, and re-encoding happen strictly locally on your machine (natively in Rust on desktop, or in browser memory on web).
+- Exporting generates a clean file from raw pixel buffers; no EXIF or GPS metadata is preserved.
 - The application makes zero network requests to external services and uses no external fonts or analytics.
 - The only local storage used is the theme preference in `localStorage`.
-```
