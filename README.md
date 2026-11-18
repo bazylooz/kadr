@@ -1,67 +1,68 @@
-# Kadr — prywatna edycja i kompresja zdjęć
+# Kadr — Private Photo Editing & Compression
 
-Nowoczesna, minimalistyczna aplikacja webowa do kompresji, zmiany rozmiaru i cenzurowania zdjęć. **Działa w 100% po stronie klienta** — pliki nigdy nie opuszczają urządzenia. Nie ma backendu, kont, telemetrii ani wysyłania obrazów na serwer.
+A modern, minimalist web application for compressing, resizing, and redacting photos. **Runs 100% client-side** — files never leave your device. No backend, accounts, telemetry, or server uploads.
 
-## Funkcje
+## Features
 
-- **Wgrywanie zdjęć** — przeciągnij i upuść albo wybierz plik (JPG, PNG, WebP).
-- **Schowek** — wklej zrzut ekranu przez `Ctrl+V` lub przycisk „Wklej ze schowka”.
-- **Podgląd na żywo** — interaktywny canvas, dopasowanie do okna, zoom, skala 1:1.
-- **Przed / po** — przytrzymaj przycisk „Przytrzymaj: oryginał”, aby zobaczyć zdjęcie bez zmian.
-- **Kompresja** — suwak jakości 10–100% z szacowaniem rozmiaru pliku na żywo.
-- **Zmiana rozmiaru** — presety (Oryginał, 1920 px Full HD, 1080 px Social media, 800 px Dokumenty/urząd) oraz własne wymiary z blokadą proporcji.
-- **Cenzura** — pędzel pikselujący lub rozmywający wrażliwe dane, regulacja rozmiaru, cofanie i czyszczenie.
-- **EXIF** — metadane (GPS, model aparatu, data) są automatycznie usuwane przy eksporcie, ponieważ obraz jest rysowany od nowa na canvasie.
-- **Eksport** — JPG, PNG, WebP lub PDF (jedna strona dopasowana do zdjęcia).
-- **Motyw** — domyślnie ciemny, z przełącznikiem jasny/ciemny zapisywanym w `localStorage`.
+- **Image Upload** — drag and drop or select a file (JPG, PNG, WebP).
+- **Clipboard** — paste a screenshot using `Ctrl+V` or the "Paste from clipboard" button.
+- **Live Preview** — interactive canvas, fit-to-window, zoom, and 1:1 scale.
+- **Before / After** — hold the "Hold: original" button to view the unedited photo.
+- **Compression** — 10–100% quality slider with real-time file size estimation.
+- **Resizing** — presets (Original, 1920 px Full HD, 1080 px Social media, 800 px Documents/official forms) as well as custom dimensions with aspect ratio lock.
+- **Redaction** — pixelate or blur brush for sensitive data, brush size adjustment, undo, and clear.
+- **EXIF Stripping** — metadata (GPS, camera model, date) is automatically removed upon export as the image is redrawn from scratch on the canvas.
+- **Export** — JPG, PNG, WebP, or PDF (single page fitted to the image).
+- **Theme** — dark mode by default, with a light/dark toggle saved in `localStorage`.
 
-## Stos technologiczny
+## Tech Stack
 
 - React 19 + Vite
 - Tailwind CSS 4
 - Lucide Icons
-- jsPDF (ładowany dynamicznie tylko przy eksporcie PDF)
-- HTML5 Canvas API — cała obróbka obrazu
+- jsPDF (dynamically loaded only on PDF export)
+- HTML5 Canvas API — all image processing
 
-## Uruchomienie
+## Getting Started
 
 ```bash
 npm install
 npm run dev
 ```
 
-Aplikacja będzie dostępna pod adresem wyświetlonym przez Vite (domyślnie `http://localhost:5173`).
+The application will be available at the address displayed by Vite (default: `http://localhost:5173`).
 
-## Build produkcyjny
+## Production Build
 
 ```bash
 npm run build
 npm run preview
 ```
 
-Folder `dist/` zawiera w pełni statyczną aplikację — można ją hostować na dowolnym serwerze plików lub CDN. Nie potrzebuje żadnego API ani bazy danych.
+The `dist/` directory contains a fully static application — it can be hosted on any file server or CDN and requires no API or database.
 
-## Aplikacja desktopowa (Tauri 2 + WebView2)
+## Desktop Application (Tauri 2 + WebView2)
 
-Projekt zawiera powłokę Tauri w katalogu `src-tauri/`. Wymagania: Rust (toolchain MSVC) oraz Visual Studio Build Tools z obciążeniem „Desktop development with C++”.
+The project includes a Tauri wrapper in the `src-tauri/` directory. Prerequisites: Rust (MSVC toolchain) and Visual Studio Build Tools with the "Desktop development with C++" workload.
 
 ```bash
-# tryb developerski (Vite + okno natywne)
+# development mode (Vite + native window)
 npm run desktop:dev
 
-# build produkcyjny → src-tauri/target/release/Kadr.exe
+# production build -> src-tauri/target/release/Kadr.exe
 npm run desktop:build
 ```
 
-Wyniki:
-- `src-tauri/target/release/Kadr.exe` — samodzielna aplikacja (WebView2),
-- `src-tauri/target/release/bundle/nsis/Kadr_1.0.0_x64-setup.exe` — instalator NSIS.
+Build outputs:
+- `src-tauri/target/release/Kadr.exe` — standalone application (WebView2),
+- `src-tauri/target/release/bundle/nsis/Kadr_1.0.0_x64-setup.exe` — NSIS installer.
 
-W oknie natywnym eksport plików (JPG/PNG/WebP/PDF) korzysta z systemowego okna „Zapisz jako” i zapisuje bajty bezpośrednio na dysku — dzięki temu PDF z jsPDF działa niezależnie od mechanizmu pobierania WebView2. Uprawnienia okna i wtyczki `dialog` opisuje `src-tauri/capabilities/default.json`.
+In the native window, file exports (JPG/PNG/WebP/PDF) use the system "Save As" dialog and write bytes directly to disk — allowing jsPDF exports to work independently of WebView2's download mechanism. Window permissions and the `dialog` plugin are configured in `src-tauri/capabilities/default.json`.
 
-## Prywatność
+## Privacy
 
-- Obrazy są dekodowane i przetwarzane wyłącznie w pamięci przeglądarki.
-- Eksport tworzy nowy plik za pomocą `canvas.toBlob()`; nie są kopiowane żadne metadane EXIF.
-- Aplikacja nie wykonuje żadnych żądań sieciowych do zewnętrznych usług i nie korzysta z zewnętrznych fontów ani analityki.
-- Jedyny zapis lokalny to preferencja motywu w `localStorage`.
+- Images are decoded and processed exclusively in browser memory.
+- Exporting creates a new file using `canvas.toBlob()`; no EXIF metadata is copied over.
+- The application makes zero network requests to external services and uses no external fonts or analytics.
+- The only local storage used is the theme preference in `localStorage`.
+```
