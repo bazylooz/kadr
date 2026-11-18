@@ -1,6 +1,6 @@
 # Kadr — Private Photo Editing & Compression
 
-A modern, minimalist web application for compressing, resizing, and redacting photos. **Runs 100% client-side** — files never leave your device. No backend, accounts, telemetry, or server uploads.
+A modern, minimalist desktop and web application for compressing, resizing, and redacting photos. **Runs 100% locally** — files never leave your device. No cloud backend, accounts, telemetry, or server uploads.
 
 ## Features
 
@@ -11,24 +11,21 @@ A modern, minimalist web application for compressing, resizing, and redacting ph
 - **Compression** — 10–100% quality slider with real-time file size estimation.
 - **Resizing** — presets (Original, 1920 px Full HD, 1080 px Social media, 800 px Documents/official forms) as well as custom dimensions with aspect ratio lock.
 - **Redaction** — pixelate or blur brush for sensitive data, brush size adjustment, undo, and clear.
-- **EXIF Stripping** — metadata (GPS, camera model, date) is automatically removed upon export as the image is redrawn from scratch on the canvas.
+- **EXIF Stripping** — metadata (GPS, camera model, date) is automatically removed upon export as the image is re-encoded from scratch.
 - **Export** — JPG, PNG, WebP, or PDF (single page fitted to the image).
 - **Theme** — dark mode by default, with a light/dark toggle saved in `localStorage`.
 
 ## Tech Stack
 
-- React 19 + Vite
-- Tailwind CSS 4
-- Lucide Icons
-- jsPDF (dynamically loaded only on PDF export)
-- HTML5 Canvas API — all image processing
+- **Frontend:** React 19 + Vite, Tailwind CSS 4, Lucide Icons
+- **Desktop & Native Processing:** Tauri 2 + Rust (`src-tauri/src/imaging/`) — high-speed native image redaction/censoring, encoding/compression, and PDF generation
+- **Web Fallback:** HTML5 Canvas API & jsPDF (dynamically loaded on PDF export when running in a browser)
 
-## Getting Started
+## Getting Started (Web Mode)
 
 ```bash
 npm install
 npm run dev
-```
 
 The application will be available at the address displayed by Vite (default: `http://localhost:5173`).
 
