@@ -1,6 +1,11 @@
+mod commands;
+mod imaging;
+
 use std::io::Write;
 
-/// Zapisuje bajty pliku w ścieżce wskazanej przez użytkownika w natywnym oknie dialogowym.
+use imaging::ImageStore;
+
+/// Zapisuje bajty pliku w ścieżce wskazanej przez użytkownika.
 #[tauri::command]
 fn write_file(path: String, bytes: Vec<u8>) -> Result<(), String> {
   let target = std::path::PathBuf::from(path);
@@ -11,14 +16,13 @@ fn write_file(path: String, bytes: Vec<u8>) -> Result<(), String> {
 
   if let Some(parent) = target.parent() {
     if !parent.as_os_str().is_empty() && !parent.exists() {
-      std::fs::create_dir_all(parent).map_err(|error| {
-        format!("Nie można utworzyć katalogu docelowego: {error}")
-      })?;
+      std::fs::create_dir_all(parent)
+        .map_err(|error| format!("Nie można utworzyć katalogu docelowego: {error}"))?;
     }
   }
 
-  let mut file = std::fs::File::create(&target)
-    .map_err(|error| format!("Nie można utworzyć pliku: {error}"))?;
+  let mut file =
+    std::fs::File::create(&target).map_err(|error| format!("Nie można utworzyć pliku: {error}"))?;
 
   file
     .write_all(&bytes)
@@ -33,7 +37,14 @@ fn write_file(path: String, bytes: Vec<u8>) -> Result<(), String> {
 pub fn run() {
   tauri::Builder::default()
     .plugin(tauri_plugin_dialog::init())
-    .invoke_handler(tauri::generate_handler![write_file])
+    .manage(ImageStore::new())
+    .invoke_handler(tauri::generate_handler![
+      write_file,
+      commands::load_image,
+      commands::estimate_image,
+      commands::render_image,
+      commands::export_image,
+    ])
     .setup(|app| {
       if cfg!(debug_assertions) {
         app.handle().plugin(

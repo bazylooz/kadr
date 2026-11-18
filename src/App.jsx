@@ -18,6 +18,13 @@ import {
   renderImage,
 } from './lib/image'
 import { fileNameFromPath, saveBlob } from './lib/save'
+import {
+  estimateNative,
+  exportNative,
+  isDesktopApp,
+  registerNativeImage,
+  renderPayload,
+} from './lib/native'
 
 function clipboardFileName(file, lang) {
   const extension = (file.type?.split('/')[1] || 'png').replace('jpeg', 'jpg')
@@ -44,6 +51,7 @@ export default function App() {
   const [brushSize, setBrushSize] = useState(40)
   const [brushMode, setBrushMode] = useState('pixelate')
   const [estimate, setEstimate] = useState({ size: null, pending: false, error: null })
+  const [nativeId, setNativeId] = useState(null)
   const [exporting, setExporting] = useState(false)
   const [toasts, setToasts] = useState([])
 
@@ -110,6 +118,18 @@ export default function App() {
         setFormat('jpeg')
         setBrushMode('pixelate')
         setEstimate({ size: null, pending: false, error: null })
+
+        // W aplikacji desktopowej bajty trafiają do silnika obrazów w Ruście.
+        setNativeId(null)
+        if (isDesktopApp()) {
+          try {
+            setNativeId(await registerNativeImage(file))
+          } catch (error) {
+            setNativeId(null)
+            pushToast(error?.message || t.toasts.loadError, 'error')
+          }
+        }
+
         if (options.toastMessage) pushToast(options.toastMessage, 'success')
       } catch (error) {
         pushToast(error?.message || t.toasts.loadError, 'error')
@@ -124,6 +144,7 @@ export default function App() {
     estimateTokenRef.current += 1
     if (currentImageRef.current?.url) URL.revokeObjectURL(currentImageRef.current.url)
     currentImageRef.current = null
+    setNativeId(null)
     setImage(null)
     setStrokes([])
     setBrushActive(false)
@@ -187,17 +208,37 @@ export default function App() {
 
     const timer = window.setTimeout(async () => {
       try {
-        const canvas = renderImage({
-          image: image.element,
-          strokes,
-          width: output.w,
-          height: output.h,
-          background,
-          lang,
-        })
-        const blob = await encodeCanvas(canvas, format, quality, lang)
+        const size =
+          nativeId != null
+            ? await estimateNative(
+                renderPayload({
+                  nativeId,
+                  width: output.w,
+                  height: output.h,
+                  format,
+                  quality,
+                  strokes,
+                  lang,
+                }),
+              )
+            : (
+                await encodeCanvas(
+                  renderImage({
+                    image: image.element,
+                    strokes,
+                    width: output.w,
+                    height: output.h,
+                    background,
+                    lang,
+                  }),
+                  format,
+                  quality,
+                  lang,
+                )
+              ).size
+
         if (estimateTokenRef.current === token) {
-          setEstimate({ size: blob.size, pending: false, error: null })
+          setEstimate({ size, pending: false, error: null })
         }
       } catch (error) {
         if (estimateTokenRef.current === token) {
@@ -211,7 +252,7 @@ export default function App() {
     }, delay)
 
     return () => window.clearTimeout(timer)
-  }, [image, strokes, output.w, output.h, format, quality, lang])
+  }, [image, nativeId, strokes, output.w, output.h, format, quality, lang])
 
   const handleAddStroke = useCallback((stroke) => {
     setStrokes((list) => [...list, stroke])
@@ -251,9 +292,35 @@ export default function App() {
 
   const handleExport = useCallback(async () => {
     if (!image || exporting) return
-    const t = getMessages(lang).toasts
+    const messages = getMessages(lang)
+    const t = messages.toasts
+    const filename = buildFileName(image.name, FORMATS[format].ext, lang)
     setExporting(true)
     try {
+      if (nativeId != null) {
+        // Desktop: render i zapis w całości po stronie Rusta.
+        const saved = await exportNative(
+          renderPayload({
+            nativeId,
+            width: output.w,
+            height: output.h,
+            format,
+            quality,
+            strokes,
+            lang,
+          }),
+          {
+            fileName: filename,
+            dialogTitle: messages.save.dialogTitle,
+            filterName: messages.save.filters[FORMATS[format].ext] || messages.save.genericFilter,
+          },
+        )
+        if (!saved) return
+        const savedName = fileNameFromPath(saved.path) || filename
+        pushToast(t.saved(savedName, formatBytes(saved.size, lang)), 'success')
+        return
+      }
+
       await new Promise((resolve) => window.setTimeout(resolve, 40))
       const background = format === 'jpeg' || format === 'pdf' ? '#ffffff' : null
       const canvas = renderImage({
@@ -265,7 +332,6 @@ export default function App() {
         lang,
       })
       const blob = await encodeCanvas(canvas, format, quality, lang)
-      const filename = buildFileName(image.name, FORMATS[format].ext, lang)
       const result = await saveBlob(blob, filename, lang)
       if (result.cancelled) return
       const savedName = fileNameFromPath(result.path) || filename
@@ -275,7 +341,7 @@ export default function App() {
     } finally {
       setExporting(false)
     }
-  }, [image, exporting, format, strokes, output.w, output.h, quality, lang, pushToast])
+  }, [image, nativeId, exporting, format, strokes, output.w, output.h, quality, lang, pushToast])
 
   useEffect(() => {
     function handleKeyDown(event) {

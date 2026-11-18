@@ -1,17 +1,15 @@
 import { getMessages } from './i18n'
 import { downloadBlob } from './image'
-
-export function isDesktopApp() {
-  return typeof window !== 'undefined' && Boolean(window.__TAURI_INTERNALS__)
-}
+import { isDesktopApp } from './native'
 
 /**
  * Zapisuje blob jako plik.
  *
  * W przeglądarce korzysta ze zwykłego pobierania (anchor + blob URL).
- * W aplikacji desktopowej (Tauri/WebView2) otwiera natywne okno zapisu
- * i zapisuje bajty bezpośrednio na dysku — dzięki temu eksport PDF działa
- * niezależnie od polityki pobierania WebView2.
+ * W aplikacji desktopowej (Tauri/WebView2) — tylko jako awaryjna ścieżka,
+ * gdy silnik w Ruście nie jest dostępny — otwiera natywne okno zapisu
+ * i zapisuje bajty bezpośrednio na dysku. Domyślnie desktop korzysta
+ * z komendy `export_image`, która renderuje i zapisuje plik po stronie Rusta.
  */
 export async function saveBlob(blob, filename, lang = 'pl') {
   if (!isDesktopApp()) {
